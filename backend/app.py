@@ -1,3 +1,4 @@
+# Backend (Flask App)
 from flask import Flask, request, jsonify
 import requests
 from flask_cors import CORS
@@ -14,7 +15,7 @@ def get_all_incidents():
         return jsonify({"result": response.json().get("result", [])}), 200
     return jsonify({"error": "Failed to fetch incidents"}), response.status_code
 
-# Fetch a single/multiple incidents
+# Fetch single/multiple incidents by sys_id
 @app.route("/incidents/<sys_ids>", methods=["GET"])
 def get_incident(sys_ids):
     sys_id_list = sys_ids.split(",")  
@@ -29,7 +30,7 @@ def get_incident(sys_ids):
         return jsonify({"result": incidents}), 200
     return jsonify({"error": "No incidents found"}), 404
 
-# Create an Incident (FIXED FIELD UPDATING)
+# Create an Incident
 @app.route("/incidents", methods=["POST"])
 def create_incident():
     data = request.json
