@@ -1,4 +1,3 @@
-# Backend (Flask App)
 from flask import Flask, request, jsonify
 import requests
 from flask_cors import CORS
@@ -15,7 +14,7 @@ def get_all_incidents():
         return jsonify({"result": response.json().get("result", [])}), 200
     return jsonify({"error": "Failed to fetch incidents"}), response.status_code
 
-# Fetch single/multiple incidents by sys_id
+# Fetch a single/multiple incidents by sys_id
 @app.route("/incidents/<sys_ids>", methods=["GET"])
 def get_incident(sys_ids):
     sys_id_list = sys_ids.split(",")  
@@ -41,18 +40,20 @@ def create_incident():
             return jsonify({"error": f"Missing required field: {field}"}), 400
 
     payload = {
-        "short_description": data["short_description"],
-        "caller_id": data["caller_id"],
-        "priority": str(data["priority"]),
-        "state": data["state"],
-        "category": data["category"],
-        "assignment_group": data["assignment_group"],
-        "assigned_to": data["assigned_to"]
+        "records": [{
+            "short_description": data["short_description"],
+            "caller_id": data["caller_id"],
+            "priority": str(data["priority"]),
+            "state": data["state"],
+            "category": data["category"],
+            "assignment_group": data["assignment_group"],
+            "assigned_to": data["assigned_to"]
+        }]
     }
 
     response = requests.post(SERVICENOW_URL, auth=(USERNAME, PASSWORD), headers=HEADERS, json=payload)
     
-    if response.status_code == 201:
+    if response.status_code in [200, 201]:
         return jsonify({"message": "Incident created successfully", "incident": response.json().get("result")}), 201
     return jsonify({"error": "Failed to create incident", "details": response.text}), response.status_code
 
